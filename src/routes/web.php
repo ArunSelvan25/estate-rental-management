@@ -100,6 +100,8 @@ Route::controller(HouseOwnerManagementController::class)
                 ->middleware('permission:tenant-edit');
             Route::post('/delete', 'deleteTenant')->name('delete')
                 ->middleware('permission:tenant-delete');
+            Route::get('/add-info', 'addInfo')->name('add-info');
+            Route::post('/upload-info', 'uploadInfo')->name('upload-info');
         });
 
         // User management

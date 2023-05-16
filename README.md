@@ -62,3 +62,20 @@ docker exec -it app bash
 ```
 
 ***Note: app -> build name***
+
+
+**Packages Used**
+1. Roles and Permission
+```
+spatie/laravel-permission
+```
+
+2. Language translation UI
+```
+outhebox/laravel-translations
+```
+
+3. Profile image with text
+```
+laravolt/avatar
+```

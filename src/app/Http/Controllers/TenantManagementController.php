@@ -220,6 +220,11 @@ class TenantManagementController extends Controller
                             </div>';
             }
 
+            $action .= ' <a class="btn btn-outline-secondary" href="'.route('tenant.add-info',['locale' => app()->getLocale()]).'">
+                            <i class="fas fa-solid fa-trash"></i>
+                            Add Info
+                        </a>';
+
             $col['id'] = $offset+1;
             $col['property_name'] = $value->property->title ?? '-';
             $col['name'] = $value->name ?? '-';
@@ -262,6 +267,14 @@ class TenantManagementController extends Controller
         $tenantData = $this->tenant->findorFail($request->tenant_id);
         $tenantData->delete();
         return back()->with('success','Tenant Deleted successfully');
+    }
+
+    public function addInfo(){
+        return view('tenant.add-info');
+    }
+
+    public function uploadInfo(Request $request) {
+        dd($request->all());
     }
 
 }
