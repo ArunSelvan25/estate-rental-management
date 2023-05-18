@@ -101,7 +101,8 @@ Route::controller(HouseOwnerManagementController::class)
             Route::post('/delete', 'deleteTenant')->name('delete')
                 ->middleware('permission:tenant-delete');
             Route::get('/add-info', 'addInfo')->name('add-info');
-            Route::post('/upload-info', 'uploadInfo')->name('upload-info');
+            Route::post('/upload-info-image', 'uploadInfoImage')->name('upload-info-image');
+            Route::post('/delete-info-image', 'deleteInfoImage')->name('delete-info-image');
         });
 
         // User management
@@ -119,6 +120,9 @@ Route::controller(HouseOwnerManagementController::class)
                 ->middleware('permission:user-edit');
             Route::post('/delete', 'deleteUser')->name('delete')
                 ->middleware('permission:user-delete');
+            Route::get('/add-info', 'addInfo')->name('add-info');
+            Route::post('/upload-info-image', 'uploadInfoImage')->name('upload-info-image');
+            Route::post('/delete-info-image', 'deleteInfoImage')->name('delete-info-image');
         });
     });
 

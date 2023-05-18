@@ -3,8 +3,6 @@ setup:
 	@make up 
 	@make composer-install
 	@make composer-autoload
-	@make data
-	@make seed-all
 	@make optimize-clear
 build:
 	docker-compose build --no-cache --force-rm

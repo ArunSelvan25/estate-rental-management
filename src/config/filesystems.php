@@ -64,6 +64,12 @@ return [
 
         ],
 
+        'tenant-info' => [
+            'driver' => 'local',
+            'root' => storage_path('app/public/tenant-info'),
+
+        ],
+
     ],
 
     /*

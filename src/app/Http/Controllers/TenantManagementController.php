@@ -4,16 +4,17 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Http\Requests\{TenantRegisterRequest, TenantEditRequest};
-use App\Models\{Tenant};
-use Illuminate\Support\Facades\{Hash, Crypt, Http};
-use Illuminate\Support\Facades\{Auth, Log};
+use App\Models\{Tenant, TenantDetail};
+use Illuminate\Support\Facades\{Hash, Crypt, Http, Auth, Log, Storage, File};
 use Spatie\Permission\Models\Role;
+use App\Helpers\Traits\CommonImageUpload;
 
 /**
  *
  */
 class TenantManagementController extends Controller
 {
+    use CommonImageUpload;
     /**
      * @param Tenant $tenant
      */
@@ -220,8 +221,8 @@ class TenantManagementController extends Controller
                             </div>';
             }
 
-            $action .= ' <a class="btn btn-outline-secondary" href="'.route('tenant.add-info',['locale' => app()->getLocale()]).'">
-                            <i class="fas fa-solid fa-trash"></i>
+            $action .= ' <a class="btn btn-outline-secondary" href="'.route('tenant.add-info',['locale' => app()->getLocale(),'type' => 'tenant','id' => $value->id]).'">
+                            <i class="fas fa-solid fa-file"></i>
                             Add Info
                         </a>';
 
@@ -269,12 +270,39 @@ class TenantManagementController extends Controller
         return back()->with('success','Tenant Deleted successfully');
     }
 
-    public function addInfo(){
-        return view('tenant.add-info');
+    public function addInfo(Request $request)
+    {
+        if($request->id) {
+            $id = $request->id;
+            $images = TenantDetail::where('tenant_id',$id)->pluck('proof_image_name');
+            $imagePath = [];
+            foreach($images as $image) {
+                $imagePath[] = asset('images/tenant-info/'.$image);
+            }
+            return view('tenant.add-info',compact('imagePath','id'));
+        } else {
+            return back()->with('error','User not found');
+        }
     }
 
-    public function uploadInfo(Request $request) {
-        dd($request->all());
+    public function uploadInfoImage(Request $request) 
+    {
+        $imageName = $this->imageUpload($request->file, 'tenant-info');
+            TenantDetail::create([
+                'tenant_id' => $request->id,
+                'proof_image_name' => $imageName
+            ]);
+        
+        return true;
+    }
+
+    public function deleteInfoImage(Request $request) 
+    {
+        TenantDetail::where('tenant_id',$request->id)->where('proof_image_name',$request->filename)->delete();
+        if (File::exists(public_path('images/tenant-info/erm-tenant-info/'.$request->filename))) {
+            File::delete(public_path('images/tenant-info/erm-tenant-info/'.$request->filename));
+        }
+        return true;
     }
 
 }

@@ -4,16 +4,17 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\{UserRegisterRequest, UserEditRequest};
 use Illuminate\Http\Request;
-use App\Models\{User};
-use Illuminate\Support\Facades\{Hash, Crypt, Http};
-use Illuminate\Support\Facades\{Auth, Log};
+use App\Models\{User, UserDetail};
+use Illuminate\Support\Facades\{Hash, Crypt, Http, Auth, Log, File};
 use Spatie\Permission\Models\Role;
+use App\Helpers\Traits\CommonImageUpload;
 
 /**
  *
  */
 class UserManagementController extends Controller
 {
+    use CommonImageUpload;
     /**
      * @param User $user
      */
@@ -169,6 +170,10 @@ class UserManagementController extends Controller
                         </div>
                     </div>';
             }
+            $action .= ' <a class="btn btn-outline-secondary" href="'.route('user.add-info',['locale' => app()->getLocale(),'type' => 'user','id' => $value->id]).'">
+                            <i class="fas fa-solid fa-file"></i>
+                            Add Info
+                        </a>';
             $col['id'] = $offset+1;
             $col['property_name'] = $value->tenant->property->title ?? '-';
             $col['tenant_name'] = $value->tenant->name ?? '-';
@@ -212,5 +217,39 @@ class UserManagementController extends Controller
         $userData = $this->user->findorFail($request->user_id);
         $userData->delete();
         return back()->with('success','User Deleted successfully');
+    }
+
+    public function addInfo(Request $request)
+    {
+        if($request->id) {
+            $id = $request->id;
+            $images = UserDetail::where('user_id',$id)->pluck('proof_image_name');
+            $imagePath = [];
+            foreach($images as $image) {
+                $imagePath[] = asset('images/user-info/'.$image);
+            }
+            return view('user.add-info',compact('imagePath','id'));
+        } else {
+            return back()->with('error','User not found');
+        }
+    }
+
+    public function uploadInfoImage(Request $request) 
+    {
+        $imageName = $this->imageUpload($request->file, 'user-info');
+            UserDetail::create([
+                'user_id' => $request->id,
+                'proof_image_name' => $imageName
+            ]);
+        return true;
+    }
+
+    public function deleteInfoImage(Request $request) 
+    {
+        UserDetail::where('user_id',$request->id)->where('proof_image_name',$request->filename)->delete();
+        if (File::exists(public_path('images/user-info/erm-user-info/'.$request->filename))) {
+            File::delete(public_path('images/user-info/erm-user-info/'.$request->filename));
+        }
+        return true;
     }
 }

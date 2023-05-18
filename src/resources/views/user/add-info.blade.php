@@ -1,23 +1,20 @@
 @extends('layout.app')
-@section('title') Tenant Management | {{ getGuard() }} @endsection('title')
+@section('title') User info | {{ getGuard() }} @endsection('title')
 
 @section('page-styles')
 {{--    Dropzone CDN --}}
     <script src="https://unpkg.com/dropzone@6.0.0-beta.1/dist/dropzone-min.js"></script>
     <link href="https://unpkg.com/dropzone@6.0.0-beta.1/dist/dropzone.css" rel="stylesheet" type="text/css" />
-
     <style>
       .dz-image img{width: 100%;height: 100%;}
     </style>
-
 @endsection('page-styles')
 
 @section('content')
-
 <div class="card shadow mb-4">
     <div class="card-header py-3">
         <div class="row col-md-12">
-          Add Tenant Info
+          Add User Info
         </div>
     </div>
 
@@ -27,14 +24,16 @@
 
         </div>
         <div class="col-md-3">
-          <form action="{{ route('tenant.upload-info-image') }}"
-            class="dropzone"
-            id="my-awesome-dropzone">
+          <form action="{{ route('user.upload-info-image') }}"
+                class="dropzone"
+                id="my-awesome-dropzone">
           </form>
         </div>
       </div>
     </div>
 </div>
+
+
 @endsection('content')
 
 @section('script')
@@ -46,28 +45,28 @@
             maxFilesize: 2, // 2 mb
             acceptedFiles: ".jpeg,.jpg,.png,.pdf",
             addRemoveLinks: true,
-            
             init: function() {
               myDropzone = this;
               if (response.length > 0) {
                   $.each(response, function(key, value) {
                       var pieces = value.split(/['/']+/)
                       var last = pieces[pieces.length - 1]
-                      var mockFile = { name: last };
+                      var mockFile = { name: last, size:'1 kb'};
                       myDropzone.emit("addedfile", mockFile);
                       myDropzone.emit("thumbnail", mockFile, value);
                       myDropzone.emit("complete", mockFile);
                   });
               }
+            
             },
-
             removedfile: function(file) {
+
               $.ajax({
                 headers: {
                             'X-CSRF-TOKEN': CSRF_TOKEN
                         },
                 type: 'POST',
-                url: '{{ url("en/tenant/delete-info-image") }}',
+                url: '{{ url("en/user/delete-info-image") }}',
                 data: {
                   filename: file.name,
                   id: {{ $id }},
@@ -87,6 +86,13 @@
        myDropzone.on("sending", function(file, xhr, formData) {
             formData.append("_token", CSRF_TOKEN);
             formData.append("id", {{ $id }});
+       }); 
+       myDropzone.on("success", function(file, response) {
+
+            if(response.success == 0){ // Error
+                  alert(response.error);
+            }
+
        });
 </script>
 @endsection('script')

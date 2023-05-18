@@ -34,7 +34,7 @@ services:
       SERVICE_TAGS: dev
       SERVICE_NAME: mysql
     volumes:
-      - hrm_datas:/var/lib/mysql/
+      - erm_datas:/var/lib/mysql/
       - ./docker_files/mysql/my.cnf:/etc/mysql/my.cnf
     networks:
       - app-network
@@ -77,5 +77,5 @@ networks:
 
 #Volumes
 volumes:
-  hrm_datas:
+  erm_datas:
     driver: local
